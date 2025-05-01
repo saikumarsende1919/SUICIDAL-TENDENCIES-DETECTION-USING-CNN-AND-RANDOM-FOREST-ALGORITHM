@@ -1,7 +1,4 @@
 # SUICIDAL-TENDENCIES-DETECTION-USING-CNN-AND-RANDOM-FOREST-ALGORITHM
-Here is the complete `README.md` file for your project:
-
----
 
 ```markdown
 # 🧠 Suicidal Tendencies Detection using CNN and Random Forest
@@ -17,6 +14,8 @@ SUICIDAL-TENDENCIES-DETECTION-USING-CNN-AND-RANDOM-FOREST-ALGORITHM/
 ├── dataset/
 │   ├── Suicide_Detection.csv
 │   ├── TRAIN.csv
+│   ├── audio_dataset/          # <-- Add your audio data here
+│   ├── image_dataset/          # <-- Add your image data here
 │   ├── audio.py
 │   └── image.py
 ├── weights/
@@ -25,7 +24,7 @@ SUICIDAL-TENDENCIES-DETECTION-USING-CNN-AND-RANDOM-FOREST-ALGORITHM/
 │   ├── audio.h5
 │   ├── audio.pkl
 │   └── tokenizer.pkl
-├── app.py
+├── app1.py
 ├── requirements.txt
 ├── .gitattributes
 └── README.md
@@ -81,7 +80,7 @@ SUICIDAL-TENDENCIES-DETECTION-USING-CNN-AND-RANDOM-FOREST-ALGORITHM/
 
 To start the project:
 ```bash
-python app.py
+python app1.py
 ```
 
 ---
@@ -97,10 +96,12 @@ python app.py
 
 ## 📚 Dataset
 
-- Includes suicide-related text, image, and audio data.
-- Dataset files:
-  - `Suicide_Detection.csv`
-  - `TRAIN.csv`
+Includes suicide-related text, image, and audio data.
+
+### 📄 Files:
+- `dataset/Suicide_Detection.csv` – Main text dataset
+- `dataset/audio_dataset/` – Folder containing audio samples
+- `dataset/image_dataset/` – Folder containing image samples
 
 ---
 
@@ -115,15 +116,3 @@ Pre-trained models and tokenizers are stored in the `weights/` folder. Git LFS i
 **Sai Kumar Sende**  
 📫 GitHub: [@saikumarsende1919](https://github.com/saikumarsende1919)
 
----
-
-## 📝 License
-
-This project is for educational and research purposes only.
-```
-
----
-
-You can now copy and save this content into a file named `README.md` in your GitHub project directory.
-
-Do you want me to generate the `requirements.txt` too if it's missing?
