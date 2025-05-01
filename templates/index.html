@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Prediction</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <main class="container">
+        <header>
+            <h1><i class="fas fa-brain"></i> Emotion Analysis</h1>
+            <p class="subtitle">Analyze emotions through audio, image, and text</p>
+        </header>
+
+        <form id="predictionForm" class="prediction-form">
+            <div class="input-section">
+                <div class="input-group">
+                    <h2><i class="fas fa-microphone"></i> Audio Analysis</h2>
+                    <div class="file-upload">
+                        <input type="file" name="audio" id="audioInput" accept="audio/*">
+                        <label for="audioInput">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Choose Audio File</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <h2><i class="fas fa-camera"></i> Image Analysis</h2>
+                    <div class="file-upload">
+                        <input type="file" name="image" id="imageInput" accept="image/*">
+                        <label for="imageInput">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Choose Image File</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <h2><i class="fas fa-comment-alt"></i> Text Analysis</h2>
+                    <textarea id="textInput" placeholder="Share your thoughts here..."></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <span>Analyze</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="results" id="results">
+            <div class="result-card" id="audioResult">
+                <i class="fas fa-music"></i>
+                <h3>Audio Sentiment</h3>
+                <p>Waiting for analysis...</p>
+            </div>
+
+            <div class="result-card" id="imageResult">
+                <i class="fas fa-image"></i>
+                <h3>Image Emotion</h3>
+                <p>Waiting for analysis...</p>
+            </div>
+
+            <div class="result-card" id="textResult">
+                <i class="fas fa-text-height"></i>
+                <h3>Text Analysis</h3>
+                <p>Waiting for analysis...</p>
+            </div>
+
+            <div class="final-result" id="finalResult">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Final Analysis</h3>
+                <p>Waiting for combined results...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // File input labels update
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const label = this.nextElementSibling.querySelector('span');
+                label.textContent = this.files[0] ? this.files[0].name : 'Choose File';
+            });
+        });
+
+        // Form submission handling
+        document.getElementById("predictionForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            // Show loading state
+            updateLoadingState(true);
+            
+            const formData = new FormData();
+            formData.append("audio", document.getElementById("audioInput").files[0]);
+            formData.append("image", document.getElementById("imageInput").files[0]);
+            formData.append("text", document.getElementById("textInput").value);
+
+            try {
+                const response = await fetch("/predict_combined", {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Update results with animation
+                updateResults(data);
+            } catch (error) {
+                console.error("Error:", error);
+                showError("An error occurred during analysis. Please try again.");
+            } finally {
+                updateLoadingState(false);
+            }
+        });
+
+        function updateLoadingState(isLoading) {
+            const submitBtn = document.querySelector('.submit-btn');
+            const results = document.querySelectorAll('.result-card p, .final-result p');
+            
+            if (isLoading) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+                submitBtn.disabled = true;
+                results.forEach(result => {
+                    result.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+                });
+            } else {
+                submitBtn.innerHTML = '<span>Analyze</span><i class="fas fa-arrow-right"></i>';
+                submitBtn.disabled = false;
+            }
+        }
+
+        function updateResults(data) {
+            const updateWithAnimation = (elementId, text) => {
+                const element = document.getElementById(elementId);
+                element.style.opacity = '0';
+        
+                setTimeout(() => {
+                    element.querySelector('p').textContent = text;
+                    element.style.opacity = '1';
+                }, 300);
+            };
+        
+            updateWithAnimation('audioResult', `Audio Sentiment: ${data.audio_result}`);
+            updateWithAnimation('imageResult', `Image Emotion: ${data.image_result}`);
+            updateWithAnimation('textResult', `Text Analysis: ${data.text_result}`);
+        
+            // Insert Whisper-transcribed text ONLY if no user input was given
+            let textInput = document.getElementById('textInput');
+            if (!textInput.value.trim() && data.transcribed_text) {
+                textInput.value = data.transcribed_text;
+            }
+        
+            // Animate final result with a delay
+            setTimeout(() => {
+                const finalResult = document.getElementById('finalResult');
+                finalResult.style.opacity = '0';
+        
+                setTimeout(() => {
+                    finalResult.querySelector('p').innerHTML = `
+                        <strong>Final Prediction:</strong> ${data.final_prediction} <br>
+                        <strong>Risk Level:</strong> ${data.risk_percentage}%
+                    `;
+                    finalResult.style.opacity = '1';
+        
+                    // Change icon and color based on prediction
+                    const icon = finalResult.querySelector('i');
+                    if (data.final_prediction.toLowerCase().includes('suicide')) {
+                        icon.className = 'fas fa-exclamation-triangle';
+                        finalResult.style.color = '#ffffff'; // Red for high risk
+                    } else {
+                        icon.className = 'fas fa-check-circle';
+                        finalResult.style.color = '#ffffff'; // Green for low risk
+                    }
+                }, 300);
+            }, 600);
+        }
+        
+        
+
+        function showError(message) {
+            const results = document.querySelectorAll('.result-card p, .final-result p');
+            results.forEach(result => {
+                result.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                result.style.color = '#ff4444';
+            });
+        }
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add file drag and drop support
+        document.querySelectorAll('.file-upload').forEach(upload => {
+            upload.addEventListener('dragover', e => {
+                e.preventDefault();
+                upload.classList.add('drag-over');
+            });
+
+            upload.addEventListener('dragleave', e => {
+                e.preventDefault();
+                upload.classList.remove('drag-over');
+            });
+
+            upload.addEventListener('drop', e => {
+                e.preventDefault();
+                upload.classList.remove('drag-over');
+                const input = upload.querySelector('input[type="file"]');
+                const label = upload.querySelector('label span');
+                
+                if (e.dataTransfer.files.length) {
+                    input.files = e.dataTransfer.files;
+                    label.textContent = e.dataTransfer.files[0].name;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

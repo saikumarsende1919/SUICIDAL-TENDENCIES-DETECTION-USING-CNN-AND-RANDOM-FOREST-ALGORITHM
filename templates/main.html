@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Multimodal Prediction</title>
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+
+    <h1>AI Multimodal Prediction</h1>
+
+    <div class="container">
+        <!-- Audio Prediction -->
+        <form id="audioForm">
+            <h2>Audio Sentiment Analysis</h2>
+            <input type="file" name="audio" id="audioInput" accept="audio/*">
+            <button type="submit">Predict Sentiment</button>
+            <p id="audioResult"></p>
+        </form>
+
+        <!-- Image Prediction -->
+        <form id="imageForm">
+            <h2>Image Emotion Detection</h2>
+            <input type="file" name="image" id="imageInput" accept="image/*">
+            <button type="submit">Predict Emotion</button>
+            <p id="imageResult"></p>
+        </form>
+
+        <!-- Text Prediction -->
+        <form id="textForm">
+            <h2>Text Sentiment Analysis</h2>
+            <textarea id="textInput" placeholder="Enter text here..."></textarea>
+            <button type="submit">Analyze Text</button>
+            <p id="textResult"></p>
+        </form>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
